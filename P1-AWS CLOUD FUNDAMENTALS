@@ -1,0 +1,264 @@
+Sections:
+	1. AWS Cloud Fundamentals 
+	2. IAM (Identity and Access Management) 
+	3. EC2 (Compute) 
+	4. VPC & Networking 
+	5. S3 (Storage) 
+	6. EBS / EFS / FSx 
+	7. Load Balancers (ELB) 
+	8. Auto Scaling 
+	9. Route 53 (DNS) 
+	10. RDS & Databases 
+	11. DynamoDB 
+	12. Lambda & Serverless 
+	13. ECS / EKS / Containers 
+	14. CloudFormation & Terraform 
+	15. CloudWatch & Monitoring 
+	16. CloudTrail & Security 
+	17. CI/CD Services 
+	18. DevOps Architecture Scenarios 
+-------------------------------------------------
+
+PART 1: AWS CLOUD FUNDAMENTALS
+What is AWS?
+Amazon Web Services is a cloud computing platform that provides on-demand infrastructure services such as:
+	• Compute 
+	• Storage 
+	• Networking 
+	• Databases 
+	• Security 
+	• Monitoring 
+	• Machine Learning 
+	• DevOps tools 
+Instead of purchasing physical servers, organizations rent resources from AWS and pay based on usage.
+
+AWS Global Infrastructure
+AWS infrastructure consists of:
+
+AWS Global Infrastructure
+Region
+          |
+  ----------------
+  |              |
+AZ-1           AZ-2
+  |              |
+Servers       Servers
+Region
+A geographic location containing multiple Availability Zones.
+Examples:
+	• Mumbai Region 
+	• London Region 
+	• US East Region 
+A region provides:
+	• Data residency 
+	• Lower latency 
+	• Disaster recovery options 
+Interview Question:
+Q: What is an AWS Region?
+Answer:
+An AWS Region is a physical geographic area that contains multiple isolated Availability Zones. Customers select regions based on latency, compliance, and availability requirements.
+
+Availability Zone (AZ)
+An Availability Zone is one or more physically separate data centres inside a region.
+Example:
+
+Mumbai Region
+|
+    |
+-----------------
+|       |       |
+AZ-A   AZ-B   AZ-C
+Benefits:
+	• High availability 
+	• Fault tolerance 
+	• Disaster recovery 
+Interview Question:
+Q: Difference between Region and Availability Zone?
+Region	Availability Zone
+Geographic location	Data centre group inside region
+Contains multiple AZs	Exists inside a region
+Example: Mumbai	Example: ap-south-1a
+
+Edge Locations
+AWS uses global edge locations for:
+	• Content delivery 
+	• DNS resolution 
+	• Caching 
+Used by:
+	• CloudFront 
+	• Route 53 
+Example:
+
+User India
+|
+   |
+Edge Location
+|
+   |
+Origin Server
+
+AWS Shared Responsibility Model
+One of the most common interview topics.
+AWS security is divided into:
+
+Customer Responsibility
+          +
+AWS Responsibility
+
+AWS Responsibility
+AWS manages:
+	• Physical data centres 
+	• Hardware 
+	• Networking infrastructure 
+	• Hypervisor 
+	• Global infrastructure 
+Example:
+AWS protects:
+
+Physical Server
+       |
+       |
+Data Centre
+
+Customer Responsibility
+Customer manages:
+	• Operating system 
+	• Applications 
+	• IAM permissions 
+	• Data encryption 
+	• Security configuration 
+Example:
+Customer protects:
+
+Application
+     |
+Operating System
+     |
+Data
+
+Interview Question
+Q: Explain AWS Shared Responsibility Model.
+Answer:
+AWS is responsible for security of the cloud, including physical infrastructure and hardware.
+Customers are responsible for security in the cloud, including applications, data, IAM permissions, and operating system configuration.
+
+AWS Pricing Models
+1. On-Demand
+Pay only for what you use.
+Suitable for:
+	• Short-term workloads 
+	• Testing environments 
+Example:
+Development server running for a few days.
+
+2. Reserved Instances
+Commit to AWS usage for 1 or 3 years.
+Benefits:
+	• Lower cost 
+	• Predictable workloads 
+Used for:
+	• Production databases 
+	• Long-running servers 
+
+3. Spot Instances
+Uses unused AWS capacity.
+Advantages:
+	• Very cheap 
+Disadvantages:
+	• AWS can terminate instances when capacity is needed 
+Used for:
+	• Batch jobs 
+	• Testing 
+	• Data processing 
+
+AWS Management Tools
+AWS Console
+Web-based interface.
+
+AWS CLI
+Command line tool.
+Example:
+
+aws ec2 describe-instances
+
+AWS SDK
+Used by applications.
+Example:
+Python:
+
+import boto3
+ec2 = boto3.client('ec2')
+
+Interview Questions - AWS Fundamentals
+Q1. Why use AWS instead of traditional data centres?
+Answer:
+AWS provides:
+	• Faster infrastructure provisioning 
+	• Global availability 
+	• Elastic scaling 
+	• Pay-as-you-go pricing 
+	• Managed services 
+	• Reduced hardware maintenance 
+
+Q2. What are the advantages of cloud computing?
+Answer:
+Elasticity
+Resources automatically increase/decrease.
+Example:
+
+High traffic
+10 servers
+    |
+Auto Scaling
+    |
+50 servers
+Scalability
+Ability to handle increasing workload.
+
+High Availability
+Applications remain available even when failures occur.
+
+Fault Tolerance
+System continues working despite failures.
+
+Q3. Difference between Scalability and Elasticity?
+Scalability
+Ability to increase capacity.
+Example:
+
+4 servers → 20 servers
+Elasticity
+Automatically adjusts resources.
+Example:
+
+Morning:
+5 servers
+Night:
+2 servers
+
+Q4. What happens when an AWS Region fails?
+Answer:
+Applications designed for high availability can failover to another region using:
+	• Route 53 health checks 
+	• Multi-region deployment 
+	• Database replication 
+	• Backup restoration 
+
+Q5. Explain AWS High Availability architecture.
+Answer:
+A highly available architecture uses:
+
+                Route53
+                       |
+                 Load Balancer
+		/            \
+	EC2-AZ1       EC2-AZ2
+		\            /
+              Database Multi-AZ
+Components:
+	• Multiple AZs 
+	• Load balancing 
+	• Auto Scaling 
+	• Database replication
+
+
