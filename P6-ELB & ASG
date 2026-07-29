@@ -1,0 +1,748 @@
+PART 6: Elastic Load Balancer (ELB) & Auto Scaling
+
+Interview Importance: ⭐⭐⭐⭐⭐ (Highest Priority)
+
+For AWS DevOps and Cloud Infrastructure Engineer interviews, Load Balancing + Auto Scaling is one of the most commonly tested topics. Interviewers often ask you to design a highly available, fault-tolerant, and scalable web application.
+
+Why Do We Need a Load Balancer?
+
+Imagine a website running on one EC2 instance.
+
+                Users
+                  |
+                  |
+              EC2 Instance
+
+If:
+
+The server crashes ❌
+CPU reaches 100% ❌
+Too many users connect ❌
+
+The application becomes unavailable.
+
+Instead, use a Load Balancer.
+
+                  Users
+                     |
+              Load Balancer
+             /      |      \
+            /       |       \
+         EC2-1    EC2-2    EC2-3
+
+Benefits:
+
+High Availability
+Fault Tolerance
+Horizontal Scaling
+Better Performance
+What is Elastic Load Balancing (ELB)?
+
+An Elastic Load Balancer (ELB) automatically distributes incoming traffic across multiple targets.
+
+Targets can be:
+
+EC2 Instances
+Containers (ECS/EKS)
+Lambda Functions (ALB)
+IP addresses
+
+ELB automatically:
+
+Detects unhealthy servers
+Routes traffic only to healthy servers
+Supports SSL termination
+Scales automatically
+Types of AWS Load Balancers
+
+AWS provides four types.
+
+Load Balancer	OSI Layer	Best For
+Application Load Balancer (ALB)	Layer 7	HTTP/HTTPS
+Network Load Balancer (NLB)	Layer 4	TCP/UDP
+Gateway Load Balancer (GWLB)	Layer 3/4	Network appliances
+Classic Load Balancer (CLB)	Layer 4 & 7	Legacy workloads
+OSI Layer Reminder
+Layer 7 → HTTP HTTPS
+
+Layer 4 → TCP UDP
+
+Layer 3 → IP Routing
+
+Interviewers frequently ask this.
+
+Application Load Balancer (ALB)
+
+Most commonly used today.
+
+Works at:
+
+OSI Layer 7
+
+Can inspect:
+
+URL path
+Hostname
+HTTP headers
+Cookies
+
+Example:
+
+User Request
+
+example.com/products
+
+↓
+
+ALB
+
+↓
+
+Products Server
+
+Another request:
+
+example.com/orders
+
+↓
+
+ALB
+
+↓
+
+Orders Server
+Path-Based Routing
+
+Example:
+
+/products
+
+↓
+
+EC2 Product Service
+/orders
+
+↓
+
+EC2 Order Service
+
+Architecture:
+
+                ALB
+
+          /products
+
+                |
+
+          Product Service
+
+-------------------------------
+
+           /orders
+
+                |
+
+          Order Service
+
+Useful for microservices.
+
+Host-Based Routing
+
+Example:
+
+api.company.com
+
+↓
+
+API Servers
+admin.company.com
+
+↓
+
+Admin Servers
+Network Load Balancer (NLB)
+
+Works at:
+
+Layer 4
+
+Uses:
+
+TCP
+UDP
+TLS
+
+Advantages:
+
+Extremely fast
+Millions of requests
+Static IP support
+Low latency
+
+Used for:
+
+Gaming
+Financial applications
+High-performance systems
+Gateway Load Balancer (GWLB)
+
+Used with:
+
+Firewalls
+IDS
+IPS
+Third-party security appliances
+
+Not commonly asked in junior interviews but useful to know.
+
+Classic Load Balancer (CLB)
+
+Older AWS load balancer.
+
+Generally replaced by:
+
+ALB
+NLB
+Load Balancer Components
+             Load Balancer
+
+                   |
+
+             Target Group
+
+          /       |        \
+
+       EC2      EC2      EC2
+Target Group
+
+A Target Group contains the resources that receive traffic.
+
+Targets can be:
+
+EC2
+IP Addresses
+Lambda
+Health Checks
+
+Load Balancers continuously verify server health.
+
+Example:
+
+Health Check
+
+↓
+
+GET /health
+
+↓
+
+HTTP 200
+
+↓
+
+Healthy
+
+Failure:
+
+HTTP 500
+
+↓
+
+Unhealthy
+
+↓
+
+Stop Sending Traffic
+Example
+
+Three servers:
+
+EC2-1
+
+Healthy
+EC2-2
+
+Healthy
+EC2-3
+
+Failed
+
+Traffic:
+
+Users
+
+↓
+
+Load Balancer
+
+↓
+
+EC2-1
+
+↓
+
+EC2-2
+
+EC2-3 ignored
+Cross-Zone Load Balancing
+
+Without Cross-Zone:
+
+AZ1
+
+10 Users
+
+↓
+
+EC2-1
+
+AZ2
+
+100 Users
+
+↓
+
+EC2-2
+
+EC2-2 becomes overloaded.
+
+With Cross-Zone:
+
+All Requests
+
+↓
+
+Both Availability Zones
+
+↓
+
+Balanced
+
+Much better utilisation.
+
+Sticky Sessions
+
+Normally:
+
+Request 1
+
+↓
+
+EC2-1
+
+Request 2
+
+↓
+
+EC2-2
+
+Sticky Session:
+
+User
+
+↓
+
+EC2-1
+
+↓
+
+EC2-1
+
+↓
+
+EC2-1
+
+Useful when the application stores session data locally.
+
+Modern architectures often store sessions in Redis or databases, reducing the need for stickiness.
+
+SSL Termination
+
+Instead of:
+
+Browser
+
+↓
+
+EC2
+
+↓
+
+Decrypt HTTPS
+
+Do:
+
+Browser
+
+↓
+
+Load Balancer
+
+↓
+
+Decrypt
+
+↓
+
+HTTP
+
+↓
+
+EC2
+
+Benefits:
+
+Easier certificate management
+Reduced CPU usage on EC2
+Centralised TLS configuration
+Auto Scaling
+
+Without Auto Scaling:
+
+Traffic
+
+↓
+
+100%
+
+↓
+
+Server Crash
+
+With Auto Scaling:
+
+Traffic
+
+↓
+
+CPU 80%
+
+↓
+
+Launch New EC2
+
+↓
+
+Traffic Shared
+Auto Scaling Group (ASG)
+Auto Scaling Group
+
+      |
+
+Minimum = 2
+
+Desired = 2
+
+Maximum = 10
+ASG Components
+
+Minimum Capacity
+
+Smallest number of instances.
+
+Example:
+
+Minimum = 2
+
+Desired Capacity
+
+Target number of instances.
+
+Desired = 4
+
+Maximum Capacity
+
+Largest number of instances.
+
+Maximum = 20
+Launch Template
+
+Auto Scaling launches new EC2 instances using a Launch Template.
+
+Contains:
+
+AMI
+Instance Type
+Security Groups
+User Data
+IAM Role
+Storage Configuration
+Scaling Policies
+Target Tracking
+
+Example:
+
+Maintain CPU
+
+50%
+
+When CPU exceeds the target, ASG adds instances. When it falls, ASG removes instances.
+
+Step Scaling
+
+Example:
+
+CPU > 70%
+
+↓
+
+Add 2 Servers
+CPU > 90%
+
+↓
+
+Add 5 Servers
+Scheduled Scaling
+
+Example:
+
+Every day:
+
+08:00 AM
+
+↓
+
+Launch 10 Servers
+11:00 PM
+
+↓
+
+Reduce to 2 Servers
+
+Useful for predictable workloads.
+
+CloudWatch + Auto Scaling
+CPU
+
+↓
+
+CloudWatch
+
+↓
+
+Alarm
+
+↓
+
+Auto Scaling
+
+↓
+
+Launch Instance
+Scale Out
+2 Servers
+
+↓
+
+6 Servers
+Scale In
+6 Servers
+
+↓
+
+2 Servers
+High Availability Architecture
+                    Users
+                       |
+                Route 53 DNS
+                       |
+              Application Load Balancer
+                 /                 \
+         Availability Zone A    Availability Zone B
+             |                     |
+        Auto Scaling          Auto Scaling
+             |                     |
+          EC2-1                EC2-2
+             |                     |
+          EC2-3                EC2-4
+                 \             /
+                  Amazon RDS Multi-AZ
+
+This architecture provides:
+
+High Availability
+Fault Tolerance
+Scalability
+Automatic Recovery
+Blue/Green Deployment
+
+Old version:
+
+Blue
+
+New version:
+
+Green
+
+Flow:
+
+Users
+
+↓
+
+Load Balancer
+
+↓
+
+Blue
+
+↓
+
+Deploy Green
+
+↓
+
+Switch Traffic
+
+↓
+
+Green
+
+Benefits:
+
+Zero downtime
+Easy rollback
+Safer deployments
+Rolling Deployment
+EC2-1
+
+↓
+
+Update
+EC2-2
+
+↓
+
+Update
+EC2-3
+
+↓
+
+Update
+
+Advantages:
+
+Lower infrastructure cost
+Minimal downtime
+Interview Questions
+Q1. What is a Load Balancer?
+
+Answer:
+
+A Load Balancer distributes incoming application traffic across multiple healthy targets, improving availability, scalability, and fault tolerance.
+
+Q2. Difference between ALB and NLB?
+ALB	NLB
+Layer 7	Layer 4
+HTTP/HTTPS	TCP/UDP/TLS
+Path-based routing	No path inspection
+Host-based routing	No host-based routing
+Supports Lambda targets	Focused on high-performance network traffic
+Q3. What happens if an EC2 instance becomes unhealthy?
+
+Answer:
+
+The Load Balancer detects the failed health checks, marks the instance as unhealthy, stops sending it traffic, and Auto Scaling can replace it if it's part of an Auto Scaling Group.
+
+Q4. Why use an Auto Scaling Group?
+
+Answer:
+
+An Auto Scaling Group automatically adjusts the number of EC2 instances based on demand, helping maintain application performance while optimising costs.
+
+Q5. What is a Target Group?
+
+Answer:
+
+A Target Group is a collection of backend resources (such as EC2 instances, IP addresses, or Lambda functions) that receive traffic from a Load Balancer.
+
+Q6. Difference between Scale Out and Scale Up?
+Scale Out	Scale Up
+Add more instances	Increase the size of an existing instance
+Horizontal scaling	Vertical scaling
+Preferred for cloud-native applications	Limited by maximum instance size
+Q7. Why is Auto Scaling often used with a Load Balancer?
+
+Answer:
+
+The Load Balancer distributes traffic across instances, while Auto Scaling ensures enough healthy instances are available to handle the workload. Together they provide scalability and high availability.
+
+Q8. What is Cross-Zone Load Balancing?
+
+Answer:
+
+Cross-Zone Load Balancing allows a Load Balancer to distribute traffic evenly across healthy targets in all enabled Availability Zones, rather than balancing traffic only within each individual zone.
+
+Q9. What is SSL Termination?
+
+Answer:
+
+SSL termination is the process where the Load Balancer decrypts HTTPS traffic before forwarding requests to backend servers, simplifying certificate management and reducing server overhead.
+
+Q10. What is the difference between Blue/Green and Rolling Deployments?
+Blue/Green	Rolling
+Deploys a separate environment	Updates existing instances in batches
+Easy rollback	Lower infrastructure cost
+Requires additional resources	Smaller resource footprint
+Minimal downtime	Minimal but not always zero downtime
+Troubleshooting Scenarios
+Scenario 1
+
+Question: Users cannot access your website through the Load Balancer.
+
+Checks:
+
+Is the Load Balancer active?
+Are the Target Group instances healthy?
+Does the Security Group allow ports 80/443?
+Is the application running on the expected port?
+Is DNS (Route 53) pointing to the correct Load Balancer?
+Scenario 2
+
+Question: Auto Scaling is not launching new instances even though CPU usage is high.
+
+Checks:
+
+Is the CloudWatch alarm configured correctly?
+Is the scaling policy attached?
+Has the maximum capacity already been reached?
+Is the Launch Template valid?
+Does the Auto Scaling Group have sufficient subnet capacity?
+Scenario 3
+
+Question: New EC2 instances launch but immediately fail health checks.
+
+Checks:
+
+Is the application starting successfully?
+Is the health check path (for example, /health) returning HTTP 200?
+Is User Data completing successfully?
+Are Security Groups allowing health check traffic?
+Is the application listening on the correct port?
+Scenario 4
+
+Question: One Availability Zone becomes unavailable. What happens?
+
+Answer:
+
+If your application spans multiple Availability Zones behind an Application Load Balancer and Auto Scaling Group, traffic is automatically routed to healthy instances in the remaining Availability Zones. Auto Scaling can later launch replacement instances when capacity becomes available.
+
+Common Interview Mistakes
+❌ Saying ALB works at Layer 4 (it operates at Layer 7).
+❌ Confusing a Target Group with an Auto Scaling Group.
+❌ Forgetting that Auto Scaling requires a valid Launch Template (or legacy Launch Configuration).
+❌ Assuming a Load Balancer alone creates more servers—it only distributes traffic.
+❌ Ignoring health checks when troubleshooting traffic issues.
+Quick Revision Sheet
+Service	Purpose
+Application Load Balancer (ALB)	Layer 7 HTTP/HTTPS load balancing
+Network Load Balancer (NLB)	Layer 4 TCP/UDP/TLS load balancing
+Target Group	Backend resources receiving traffic
+Health Check	Verifies target availability
+Cross-Zone Load Balancing	Evenly distributes traffic across AZs
+SSL Termination	Offloads TLS decryption to the Load Balancer
+Auto Scaling Group	Automatically adjusts EC2 instance count
+Launch Template	Defines how new EC2 instances are launched
+Target Tracking	Maintains a target metric (e.g., CPU 50%)
+Blue/Green Deployment	Separate environments with quick cutover
+Rolling Deployment	Incremental updates to existing instances
