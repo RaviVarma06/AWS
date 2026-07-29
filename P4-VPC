@@ -1,0 +1,577 @@
+PART 4: VPC (Virtual Private Cloud)
+
+Interview importance: ⭐⭐⭐⭐⭐ (Highest Priority)
+
+VPC is one of the most important AWS services for DevOps and Cloud Infrastructure roles. Many interviews spend 20–40 minutes on networking concepts because they directly affect application availability and security.
+
+What is a VPC?
+
+A Virtual Private Cloud (VPC) is a logically isolated virtual network within AWS where you launch and manage AWS resources.
+
+Think of it as your own private data centre in the cloud.
+
+Without a VPC:
+
+AWS Cloud
+    |
+Everyone shares same network
+
+With a VPC:
+
+AWS Cloud
+      |
+-------------------------
+|       Your VPC        |
+|                       |
+|  EC2   RDS   Lambda   |
+|                       |
+-------------------------
+Why Do We Need a VPC?
+
+A VPC provides:
+
+Network isolation
+IP address management
+Security
+Internet connectivity
+Private communication
+Routing control
+
+Without a VPC, you wouldn't control:
+
+IP addresses
+Firewall rules
+Subnets
+Routes
+Internet access
+Basic VPC Architecture
+                 AWS Region
+                     |
+               ----------------
+               |              |
+            Your VPC      Another VPC
+
+Your VPC
+
+CIDR: 10.0.0.0/16
+
+------------------------------------------------
+|                                              |
+| Public Subnet       Private Subnet           |
+|                                              |
+| EC2 + ALB           App Servers              |
+|                      |                       |
+|                      RDS                     |
+------------------------------------------------
+CIDR Block
+
+Every VPC requires an IP address range.
+
+Example:
+
+10.0.0.0/16
+
+CIDR defines the private IP addresses available inside the VPC.
+
+Common private ranges:
+
+10.0.0.0/8
+
+172.16.0.0/12
+
+192.168.0.0/16
+
+Example:
+
+VPC
+
+10.0.0.0/16
+
+↓
+
+65,536 IP addresses
+CIDR Cheat Sheet
+CIDR	Approx. Number of IPs
+/16	65,536
+/20	4,096
+/24	256
+/28	16
+
+Interview Tip: AWS reserves 5 IP addresses in every subnet.
+
+Subnets
+
+A subnet is a subdivision of a VPC.
+
+Example:
+
+VPC
+
+10.0.0.0/16
+
+      |
+
+----------------------------
+
+10.0.1.0/24
+
+10.0.2.0/24
+
+10.0.3.0/24
+
+Each subnet belongs to one Availability Zone.
+
+Types of Subnets
+Public Subnet
+
+A subnet is considered public if it has a route to an Internet Gateway.
+
+Typical resources:
+
+Application Load Balancer
+Bastion Host
+Web servers
+NAT Gateway
+
+Example:
+
+Internet
+
+↓
+
+Internet Gateway
+
+↓
+
+Public Subnet
+
+↓
+
+Web Server
+Private Subnet
+
+A private subnet has no direct route to the Internet Gateway.
+
+Typical resources:
+
+Application servers
+Databases
+Internal services
+
+Example:
+
+Private Subnet
+
+↓
+
+Application Server
+
+↓
+
+Database
+Internet Gateway (IGW)
+
+An Internet Gateway connects a VPC to the public internet.
+
+Internet
+
+↓
+
+Internet Gateway
+
+↓
+
+Public Subnet
+
+↓
+
+EC2
+
+Without an Internet Gateway:
+
+No internet access
+No public websites
+No SSH from the internet
+Route Tables
+
+A Route Table decides where network traffic goes.
+
+Example:
+
+Destination	Target
+10.0.0.0/16	Local
+0.0.0.0/0	Internet Gateway
+
+Meaning:
+
+Traffic within the VPC stays local.
+All other traffic goes to the Internet Gateway.
+Public Route Table
+Destination
+
+0.0.0.0/0
+
+↓
+
+Internet Gateway
+Private Route Table
+Destination
+
+10.0.0.0/16
+
+↓
+
+Local
+
+No internet route.
+
+NAT Gateway
+
+A NAT Gateway allows outbound internet access from private subnets without allowing inbound connections from the internet.
+
+Example:
+
+Private EC2
+
+↓
+
+NAT Gateway
+
+↓
+
+Internet Gateway
+
+↓
+
+Internet
+
+Common use cases:
+
+Download software updates
+Install packages
+Access external APIs
+
+The internet cannot initiate a connection back to the private instance.
+
+Why Not Give Every EC2 a Public IP?
+
+Reasons:
+
+Better security
+Smaller attack surface
+Easier compliance
+Protect databases and internal services
+
+Production architecture:
+
+Internet
+
+↓
+
+Load Balancer
+
+↓
+
+Web Server
+
+↓
+
+Application Server
+
+↓
+
+Database
+
+Only the Load Balancer is internet-facing.
+
+Security Groups
+
+Security Groups are instance-level, stateful virtual firewalls.
+
+Example:
+
+Internet
+
+↓
+
+Security Group
+
+↓
+
+EC2
+
+Rules:
+
+Allow SSH:
+
+Port 22
+
+Allow HTTP:
+
+Port 80
+
+Allow HTTPS:
+
+Port 443
+Network ACL (NACL)
+
+A Network ACL is a subnet-level, stateless firewall.
+
+Subnet
+
+↓
+
+Network ACL
+
+↓
+
+EC2
+
+Unlike Security Groups:
+
+Supports Allow and Deny rules
+Stateless (return traffic must also be explicitly allowed)
+Security Group vs NACL
+Feature	Security Group	Network ACL
+Level	Instance	Subnet
+Stateful	Yes	No
+Allow Rules	Yes	Yes
+Deny Rules	No	Yes
+Default Behaviour	Deny inbound, allow outbound	Configurable
+Bastion Host (Jump Server)
+
+A Bastion Host is a hardened EC2 instance placed in a public subnet to securely access private instances.
+
+Admin
+
+↓
+
+SSH
+
+↓
+
+Bastion Host
+
+↓
+
+Private EC2
+
+Benefits:
+
+Private instances have no public IP.
+Centralised access point.
+Easier auditing.
+VPC Peering
+
+Allows two VPCs to communicate privately.
+
+Example:
+
+VPC-A
+
+10.0.0.0/16
+
+↓
+
+VPC Peering
+
+↓
+
+VPC-B
+
+192.168.0.0/16
+
+Requirements:
+
+Non-overlapping CIDR blocks
+Route table updates
+
+Limitations:
+
+Not transitive (A↔B and B↔C does not mean A↔C)
+Transit Gateway
+
+A Transit Gateway acts as a central network hub.
+
+             Transit Gateway
+
+        /        |        \
+
+      VPC1     VPC2     VPC3
+
+Advantages:
+
+Simpler than managing many peering connections
+Scales to many VPCs
+Centralised routing
+VPC Endpoint
+
+A VPC Endpoint lets resources access supported AWS services privately, without traversing the public internet.
+
+Example:
+
+Private EC2
+
+↓
+
+VPC Endpoint
+
+↓
+
+S3
+
+Benefits:
+
+Improved security
+Lower latency
+No need for a NAT Gateway for supported services
+DNS in a VPC
+
+AWS provides an internal DNS service.
+
+Example:
+
+EC2-A
+
+↓
+
+Private DNS
+
+↓
+
+EC2-B
+
+Instances can communicate using private DNS names.
+
+Production Architecture
+                     Internet
+                         |
+                  Internet Gateway
+                         |
+                 Application Load Balancer
+                         |
+          ----------------------------------
+          |                                |
+     Public Subnet A                  Public Subnet B
+          |                                |
+      NAT Gateway                     NAT Gateway
+          |                                |
+   ------------------               ------------------
+   |                |               |                |
+Private App A   Private App B   Private App A   Private App B
+         \            /                 \            /
+          \          /                   \          /
+             Amazon RDS (Multi-AZ)
+
+This design provides:
+
+High availability
+Scalability
+Fault tolerance
+Security
+Interview Questions
+Q1. What is a VPC?
+
+Answer:
+A VPC is a logically isolated virtual network in AWS where you define IP ranges, subnets, routing, and security controls for your cloud resources.
+
+Q2. Difference between a Public and Private Subnet?
+Public	Private
+Has a route to an Internet Gateway	No direct route to an Internet Gateway
+Can host internet-facing resources	Hosts internal resources
+May assign public IPs	Typically uses only private IPs
+Q3. What is the purpose of an Internet Gateway?
+
+Answer:
+An Internet Gateway enables communication between a VPC and the public internet for resources with appropriate routing and public IP configuration.
+
+Q4. Why do private instances use a NAT Gateway?
+
+Answer:
+To allow outbound internet access (for updates or external APIs) while preventing unsolicited inbound connections from the internet.
+
+Q5. Difference between Security Groups and Network ACLs?
+
+Answer:
+Security Groups are stateful and apply at the instance level with allow rules only. Network ACLs are stateless, apply at the subnet level, and support both allow and deny rules.
+
+Q6. Can two VPCs communicate?
+
+Answer:
+Yes, using VPC Peering, a Transit Gateway, VPN, or services like AWS PrivateLink, depending on the architecture and requirements.
+
+Q7. Why can't two VPCs with overlapping CIDR blocks be peered?
+
+Answer:
+Because routing would become ambiguous. AWS requires unique, non-overlapping CIDR ranges for VPC Peering.
+
+Q8. Can a private EC2 instance access the internet?
+
+Answer:
+Yes, through a NAT Gateway (or NAT instance) if the route table is configured correctly.
+
+Q9. What happens if the Internet Gateway is detached?
+
+Answer:
+Resources lose internet connectivity, even if they have public IP addresses, because there is no gateway connecting the VPC to the internet.
+
+Q10. What are the five reserved IP addresses in each subnet?
+
+AWS reserves:
+
+Network address
+VPC router
+DNS server
+Future use
+Broadcast-related reservation (AWS reserves it even though traditional broadcast isn't used in VPC networking)
+Troubleshooting Scenarios
+Scenario 1
+
+Question: An EC2 instance in a public subnet cannot access the internet.
+
+Checklist:
+
+Is an Internet Gateway attached to the VPC?
+Does the subnet's route table include 0.0.0.0/0 → Internet Gateway?
+Does the instance have a public IPv4 address (or Elastic IP)?
+Does the Security Group allow the required outbound traffic?
+Is the Network ACL allowing the traffic?
+Scenario 2
+
+Question: An EC2 instance in a private subnet cannot install packages with yum or apt.
+
+Checks:
+
+Is a NAT Gateway deployed in a public subnet?
+Does the private subnet's route table point 0.0.0.0/0 to the NAT Gateway?
+Does the NAT Gateway have an Elastic IP?
+Does the public subnet containing the NAT Gateway have a route to the Internet Gateway?
+Scenario 3
+
+Question: Two EC2 instances in different subnets cannot communicate.
+
+Checks:
+
+Are both subnets in the same VPC?
+Do Security Groups allow the required traffic?
+Are Network ACLs blocking the traffic?
+Are route tables configured correctly?
+Common Interview Mistakes
+❌ Saying a public subnet is defined by having public IPs (it's defined by its route to an Internet Gateway).
+❌ Confusing a NAT Gateway with an Internet Gateway.
+❌ Saying Security Groups have deny rules.
+❌ Forgetting that a NAT Gateway must be placed in a public subnet.
+❌ Forgetting that VPC Peering is not transitive.
+Quick Revision Sheet
+Service	Purpose
+VPC	Isolated virtual network
+Subnet	Segment of a VPC
+Internet Gateway	Connects a VPC to the internet
+NAT Gateway	Outbound internet for private subnets
+Route Table	Directs network traffic
+Security Group	Stateful instance firewall
+Network ACL	Stateless subnet firewall
+Bastion Host	Secure SSH/RDP access to private instances
+VPC Peering	Private connectivity between two VPCs
+Transit Gateway	Central hub for connecting multiple VPCs
+VPC Endpoint	Private access to supported AWS services
