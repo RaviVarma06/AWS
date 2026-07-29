@@ -1,0 +1,795 @@
+PART 7: Amazon RDS (Relational Database Service)
+
+Interview Importance: ⭐⭐⭐⭐⭐ (Very High)
+
+Amazon RDS (Relational Database Service) is one of the most important managed database services in AWS. Every DevOps engineer should understand how to deploy, secure, scale, back up, and troubleshoot RDS.
+
+What is Amazon RDS?
+
+Amazon RDS is a managed relational database service.
+
+Instead of installing and managing a database yourself:
+
+Buy Server
+
+↓
+
+Install Linux
+
+↓
+
+Install MySQL
+
+↓
+
+Configure Backups
+
+↓
+
+Configure Replication
+
+↓
+
+Monitor Database
+
+AWS manages all of that.
+
+You only manage:
+
+Database
+Schema
+Tables
+Users
+Queries
+What Does AWS Manage?
+
+AWS manages:
+
+Hardware
+Operating System
+Database installation
+Software patching
+Automatic backups
+Monitoring
+Failover
+Storage
+What Do You Manage?
+
+You manage:
+
+Tables
+Indexes
+SQL Queries
+Users
+Permissions
+Application Data
+Supported Database Engines
+
+RDS supports:
+
+MySQL
+PostgreSQL
+MariaDB
+Oracle
+Microsoft SQL Server
+
+Interview Question:
+
+Which database engine should you choose?
+
+Answer:
+
+It depends on application requirements.
+
+Example:
+
+Java Application
+
+↓
+
+PostgreSQL
+.NET Application
+
+↓
+
+SQL Server
+RDS Architecture
+             Application
+
+                   |
+
+           Application Server
+
+                   |
+
+             Amazon RDS
+
+Unlike EC2 databases, applications do NOT SSH into RDS.
+
+Applications connect using:
+
+Hostname
+
+Port
+
+Username
+
+Password
+
+Example:
+
+mysql.company.com:3306
+High Availability Architecture
+          Application
+
+                |
+
+         Application Server
+
+                |
+
+           Primary RDS
+
+        Availability Zone A
+
+                |
+
+      Synchronous Replication
+
+                |
+
+         Standby RDS
+
+       Availability Zone B
+
+This is called Multi-AZ.
+
+DB Instance Classes
+
+Similar to EC2 instance types.
+
+Examples:
+
+db.t3.micro
+
+db.t3.small
+
+db.m6g.large
+
+db.r6g.large
+
+Memory-intensive databases usually use:
+
+db.r6g.large
+Storage Types
+General Purpose SSD (gp3)
+
+Best for:
+
+Most production workloads
+Provisioned IOPS SSD (io2)
+
+Best for:
+
+Financial systems
+Large databases
+High transaction workloads
+Magnetic Storage
+
+Legacy option.
+
+Rarely used today.
+
+Multi-AZ Deployment
+
+One of the most common interview questions.
+
+Without Multi-AZ:
+
+Application
+
+↓
+
+Single Database
+
+↓
+
+Failure
+
+↓
+
+Downtime
+
+With Multi-AZ:
+
+Application
+
+↓
+
+Primary Database
+
+↓
+
+Standby Database
+
+↓
+
+Automatic Failover
+How Multi-AZ Works
+Primary
+
+↓
+
+Write
+
+↓
+
+Synchronously Replicated
+
+↓
+
+Standby
+
+If Primary fails:
+
+Primary Failed
+
+↓
+
+AWS Detects Failure
+
+↓
+
+Standby Promoted
+
+↓
+
+Application Continues
+Important Interview Point
+
+Standby cannot be used for reading.
+
+It is only for:
+
+Disaster Recovery
+Failover
+Read Replica
+
+Often confused with Multi-AZ.
+
+Architecture:
+
+Primary Database
+
+      |
+
+Asynchronous Replication
+
+      |
+
+Read Replica
+
+Purpose:
+
+Read scaling
+
+Applications:
+
+Writes
+
+↓
+
+Primary
+Reads
+
+↓
+
+Replica
+Multi-AZ vs Read Replica
+Multi-AZ	Read Replica
+High Availability	Read Scaling
+Synchronous	Asynchronous
+Standby cannot be queried	Replica can serve reads
+Automatic Failover	Manual promotion (engine-dependent)
+Disaster Recovery	Performance
+Automatic Backups
+
+AWS automatically creates:
+
+Daily backup
+Transaction logs
+
+Allows:
+
+Restore Database
+
+↓
+
+Yesterday
+
+↓
+
+2 Days Ago
+
+↓
+
+Last Week
+Retention Period
+
+Can be configured between:
+
+1 Day
+
+↓
+
+35 Days
+Point-in-Time Recovery (PITR)
+
+Suppose:
+
+10:00 AM
+
+Database Healthy
+10:15 AM
+
+Developer Deleted Table
+
+Restore:
+
+10:14 AM
+
+This is Point-in-Time Recovery.
+
+Manual Snapshots
+
+Manual snapshots:
+
+Never expire automatically
+Must be deleted manually
+Useful before upgrades
+
+Example:
+
+Upgrade Database
+
+↓
+
+Take Snapshot
+
+↓
+
+Upgrade
+
+↓
+
+Rollback if Needed
+Encryption
+
+RDS supports encryption using AWS KMS.
+
+Data encrypted:
+
+Storage
+Snapshots
+Replicas
+Backups
+Security Groups
+
+RDS uses Security Groups just like EC2.
+
+Example:
+
+Allow:
+
+Application Server
+
+↓
+
+Port 3306
+
+↓
+
+MySQL
+
+Do NOT allow:
+
+0.0.0.0/0
+
+unless absolutely required.
+
+Public vs Private Database
+
+Production:
+
+Private Subnet
+
+↓
+
+RDS
+
+Development:
+
+Public
+
+↓
+
+Possible
+
+Best practice:
+
+Production databases should remain private.
+
+RDS Proxy
+
+Problem:
+
+Thousands of applications:
+
+↓
+
+10,000 Database Connections
+
+Database becomes overloaded.
+
+Solution:
+
+Application
+
+↓
+
+RDS Proxy
+
+↓
+
+Database
+
+Benefits:
+
+Connection pooling
+Faster failover
+Improved scalability
+Maintenance Window
+
+AWS performs:
+
+Minor version upgrades
+Security patches
+
+During the configured maintenance window.
+
+Monitoring
+
+Metrics available:
+
+CPU Utilisation
+Free Storage
+Database Connections
+IOPS
+Read Latency
+Write Latency
+
+Monitored through:
+
+CloudWatch
+Performance Insights
+Performance Insights
+
+Helps identify:
+
+Slow SQL queries
+High CPU usage
+Wait events
+Lock contention
+
+Very useful during troubleshooting.
+
+Database Failover
+Primary Failure
+
+↓
+
+AWS Detects Failure
+
+↓
+
+Standby Promoted
+
+↓
+
+DNS Updated
+
+↓
+
+Application Reconnects
+
+Usually completes within a few minutes, depending on the database engine and circumstances.
+
+Scaling RDS
+
+Vertical Scaling:
+
+db.t3.micro
+
+↓
+
+db.m6g.large
+
+Horizontal Scaling:
+
+Primary
+
+↓
+
+Read Replica 1
+
+↓
+
+Read Replica 2
+Production Architecture
+                 Users
+
+                   |
+
+             Load Balancer
+
+                   |
+
+           Application Servers
+
+                   |
+
+          Amazon RDS Primary
+
+           Availability Zone A
+
+                   |
+
+        Synchronous Replication
+
+                   |
+
+         Standby Database
+
+         Availability Zone B
+
+                   |
+
+             Daily Backups
+
+                   |
+
+                S3 Storage
+Interview Questions
+Q1. What is Amazon RDS?
+
+Answer:
+
+Amazon RDS is a managed relational database service that automates provisioning, patching, backups, monitoring, and failover, allowing users to focus on their database and applications.
+
+Q2. Difference between RDS and EC2 Database?
+RDS	EC2 Database
+Managed	Self-managed
+Automatic backups	Manual setup
+Automatic patching	Manual patching
+Easy scaling	Manual scaling
+Built-in Multi-AZ support	You implement HA yourself
+Q3. What is Multi-AZ?
+
+Answer:
+
+Multi-AZ creates a synchronously replicated standby database in another Availability Zone to provide high availability and automatic failover.
+
+Q4. Difference between Multi-AZ and Read Replica?
+Multi-AZ	Read Replica
+High availability	Read scaling
+Synchronous replication	Asynchronous replication
+Automatic failover	Primarily for read traffic; promotion is typically a manual operation if needed
+Standby not readable	Readable replica
+Q5. What is Point-in-Time Recovery?
+
+Answer:
+
+Point-in-Time Recovery restores a database to a specific second within the backup retention period by combining automated backups with transaction logs.
+
+Q6. Can you SSH into an RDS instance?
+
+Answer:
+
+No. AWS manages the underlying operating system, so SSH access is not provided.
+
+Q7. Why use Read Replicas?
+
+Answer:
+
+To offload read traffic from the primary database, improving performance for read-heavy applications.
+
+Q8. What is RDS Proxy?
+
+Answer:
+
+RDS Proxy manages and pools database connections between applications and the database, reducing connection overhead and improving application resilience.
+
+Q9. How are backups stored?
+
+Answer:
+
+Automated backups and manual snapshots are stored in AWS-managed storage. You don't need to manage the underlying storage yourself.
+
+Q10. Can a Read Replica become the primary database?
+
+Answer:
+
+Yes. A Read Replica can be promoted to a standalone database instance if needed, for example during migration or recovery scenarios.
+
+Scenario-Based Questions
+Scenario 1
+Question:
+
+Production database suddenly crashes.
+
+What happens if Multi-AZ is enabled?
+
+Answer:
+
+Primary Failure
+
+↓
+
+Standby Promoted
+
+↓
+
+DNS Updated
+
+↓
+
+Application Reconnects
+
+Minimal downtime.
+
+Scenario 2
+Question:
+
+Application is slow because thousands of users are reading data.
+
+Solution?
+
+Answer:
+
+Create:
+
+Primary
+
+↓
+
+Read Replicas
+
+Send:
+
+Writes
+
+↓
+
+Primary
+Reads
+
+↓
+
+Replica
+Scenario 3
+Question:
+
+Developer accidentally deleted customer records.
+
+How do you recover?
+
+Answer:
+
+If backups exist:
+
+Use:
+
+Point-in-Time Recovery
+
+Restore database to:
+
+1 minute before deletion
+Scenario 4
+Question:
+
+Application opens thousands of database connections.
+
+Database CPU reaches 100%.
+
+Solution?
+
+Answer:
+
+Use:
+
+Application
+
+↓
+
+RDS Proxy
+
+↓
+
+Database
+
+Connection pooling reduces overhead.
+
+Scenario 5
+Question:
+
+Your production database should never be accessible from the internet.
+
+Architecture?
+
+Public Subnet
+
+↓
+
+Application Server
+
+↓
+
+Private Subnet
+
+↓
+
+Amazon RDS
+
+Only application servers communicate with RDS.
+
+Common Interview Mistakes
+
+❌ Saying Read Replicas provide automatic failover.
+
+❌ Thinking Multi-AZ improves read performance.
+
+❌ Saying you can SSH into RDS.
+
+❌ Exposing production RDS instances to the public internet.
+
+❌ Confusing snapshots with Point-in-Time Recovery.
+
+Quick Revision Sheet
+Service	Purpose
+RDS	Managed relational database
+Multi-AZ	High availability and automatic failover
+Read Replica	Scale read operations
+Automatic Backup	Scheduled backups and transaction logs
+PITR	Restore to a specific point in time
+Manual Snapshot	User-controlled backup retained until deleted
+RDS Proxy	Connection pooling and resilience
+Performance Insights	Database performance analysis
+KMS Encryption	Encrypt data at rest
+Security Groups	Control network access to the database
+Frequently Asked Architecture Question
+Design a Highly Available 3-Tier Web Application
+                 Internet
+                     |
+                Route 53 (DNS)
+                     |
+          Application Load Balancer
+             /                  \
+        EC2 (AZ-1)          EC2 (AZ-2)
+             |                  |
+             +--------+---------+
+                      |
+              Amazon RDS Primary
+                 (Private Subnet)
+                      |
+          Synchronous Replication
+                      |
+             Amazon RDS Standby
+                 (Private Subnet)
+
+How it works:
+
+Route 53 resolves the application's domain name.
+The Application Load Balancer distributes traffic across EC2 instances in multiple Availability Zones.
+EC2 instances handle application logic.
+The primary RDS instance stores application data.
+Multi-AZ keeps a synchronously updated standby ready for automatic failover.
