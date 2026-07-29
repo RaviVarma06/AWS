@@ -1,0 +1,513 @@
+PART 2: IAM (Identity and Access Management)
+
+IAM is one of the most important AWS services for any DevOps or Cloud Infrastructure Engineer. Nearly every AWS interview includes IAM questions because it underpins authentication, authorization, and secure access.
+
+What is IAM?
+
+Amazon Web Services Identity and Access Management (IAM) is a global AWS service used to securely control who can access AWS resources and what actions they can perform.
+
+IAM answers two questions:
+
+Who are you? (Authentication)
+What are you allowed to do? (Authorization)
+IAM Architecture
+                    AWS Account
+                         |
+       ---------------------------------
+       |               |               |
+     Users           Groups          Roles
+       |               |               |
+       -------------------------------
+                     |
+                 Policies
+                     |
+                     |
+           AWS Resources (EC2, S3, RDS...)
+IAM Components
+1. IAM User
+
+An IAM User represents a person or application requiring long-term access to AWS.
+
+Examples:
+
+Developer
+DevOps Engineer
+CI/CD automation user
+
+A user has:
+
+Username
+Password (Console access)
+Access Keys (CLI/API)
+
+Example:
+
+Developer
+
+Username : john
+
+Password : ********
+
+Access Key
+
+Secret Key
+2. IAM Group
+
+A Group is a collection of users with the same permissions.
+
+Instead of assigning permissions individually:
+
+Alice
+Bob
+Charlie
+
+Create:
+
+Developers Group
+
+Attach one policy:
+
+Developers
+
+↓
+
+AmazonS3ReadOnly
+
+Every member automatically receives those permissions.
+
+Benefits
+Easier administration
+Consistent permissions
+Scalable
+3. IAM Policy
+
+A Policy is a JSON document defining permissions.
+
+Example:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect":"Allow",
+      "Action":"s3:GetObject",
+      "Resource":"arn:aws:s3:::mybucket/*"
+    }
+  ]
+}
+
+This policy allows reading objects from a specific S3 bucket.
+
+Policy Structure
+
+Every policy has:
+
+Version
+
+Policy language version.
+
+"Version":"2012-10-17"
+Effect
+
+Can be:
+
+Allow
+
+or
+
+Deny
+Action
+
+Which AWS API operations are permitted?
+
+Examples:
+
+ec2:StartInstances
+
+ec2:StopInstances
+
+s3:GetObject
+
+s3:PutObject
+Resource
+
+Specifies which resources are affected.
+
+Example:
+
+arn:aws:s3:::company-backup/*
+Condition (Optional)
+
+Apply permissions only when specific conditions are met.
+
+Example:
+
+Only allow access from a corporate IP address.
+
+Types of IAM Policies
+AWS Managed Policies
+
+Created and maintained by AWS.
+
+Examples:
+
+AmazonS3ReadOnlyAccess
+AdministratorAccess
+AmazonEC2FullAccess
+
+Advantages:
+
+Easy to use
+Automatically updated
+Customer Managed Policies
+
+Created by your organization.
+
+Advantages:
+
+More secure
+Tailored to business needs
+Easier to reuse
+Inline Policies
+
+Attached directly to one user, group, or role.
+
+Characteristics:
+
+Cannot be shared
+Deleted with the identity
+
+Usually used only for special cases.
+
+IAM Roles
+
+A Role provides temporary credentials.
+
+Unlike a User:
+
+No password
+No permanent access keys
+
+Roles are assumed when needed.
+
+Role Architecture
+EC2 Instance
+
+      |
+
+Assume IAM Role
+
+      |
+
+Temporary Credentials
+
+      |
+
+Access S3
+Why Roles Instead of Access Keys?
+
+❌ Bad practice
+
+Access Key
+
+Secret Key
+
+Stored inside application
+
+Problems:
+
+Can be stolen
+Difficult to rotate
+Security risk
+
+✅ Best practice
+
+EC2
+
+↓
+
+IAM Role
+
+↓
+
+Temporary Credentials
+
+↓
+
+S3
+
+Advantages:
+
+Automatic rotation
+No embedded secrets
+More secure
+Common IAM Roles
+EC2 Role
+
+Allows an EC2 instance to access:
+
+S3
+DynamoDB
+CloudWatch
+
+without storing credentials.
+
+Lambda Role
+
+Allows a Lambda function to:
+
+Write CloudWatch logs
+Access S3
+Read Secrets Manager
+Cross-Account Role
+
+Used when one AWS account needs to access resources in another account.
+
+Example:
+
+Production Account
+
+↓
+
+Assume Role
+
+↓
+
+Shared Services Account
+Authentication vs Authorization
+
+Authentication
+
+Who are you?
+
+Example:
+
+Username + Password
+
+Authorization
+
+What can you do?
+
+Example:
+
+Can create EC2 instances?
+
+Can delete S3 buckets?
+
+IAM Best Practices
+1. Enable MFA
+
+Always enable Multi-Factor Authentication for privileged users.
+
+2. Follow Least Privilege
+
+Give only the permissions required.
+
+Bad:
+
+AdministratorAccess
+
+Good:
+
+EC2 Start
+
+EC2 Stop
+3. Use Roles
+
+Never store AWS access keys inside code.
+
+4. Rotate Credentials
+
+Regularly rotate:
+
+Passwords
+Access keys
+Secrets
+5. Use Groups
+
+Avoid assigning permissions individually whenever possible.
+
+6. Root Account
+
+Never use the root account for daily work.
+
+Use it only for tasks such as:
+
+Closing the account
+Changing billing information
+Recovery actions
+IAM Policy Evaluation
+
+Suppose a user belongs to two groups.
+
+Group A
+
+Allow EC2
+
+Group B
+
+Deny EC2
+
+Final Result:
+
+DENY
+Important Rule
+
+Explicit Deny always overrides Allow.
+
+IAM Permission Evaluation Flow
+Request
+
+↓
+
+Authentication
+
+↓
+
+Policy Evaluation
+
+↓
+
+Explicit Deny?
+
+↓
+
+Yes → Reject
+
+↓
+
+No
+
+↓
+
+Allow?
+
+↓
+
+Yes → Access Granted
+
+↓
+
+No → Default Deny
+Access Keys
+
+Used by:
+
+AWS CLI
+SDKs
+Automation
+Jenkins
+Terraform
+
+Example:
+
+aws configure
+
+Prompts:
+
+AWS Access Key
+
+AWS Secret Key
+
+Region
+
+Output Format
+Interview Questions
+Q1. What is IAM?
+
+Answer:
+
+IAM is a global AWS service used to securely manage authentication and authorization for AWS resources through users, groups, roles, and policies.
+
+Q2. Difference between User and Role?
+User	Role
+Permanent identity	Temporary identity
+Password or access keys	Temporary credentials
+Represents a person or application	Assumed by users or AWS services
+Long-term access	Short-term access
+Q3. Why use IAM Roles instead of Access Keys?
+
+Answer:
+
+Roles provide temporary credentials that rotate automatically, reducing the risk of credential leakage. They eliminate the need to embed long-term access keys in applications or EC2 instances.
+
+Q4. What is the Principle of Least Privilege?
+
+Answer:
+
+Grant only the minimum permissions required to perform a task. This reduces the attack surface and limits the impact of accidental or malicious actions.
+
+Q5. What happens if one policy allows an action and another explicitly denies it?
+
+Answer:
+
+The request is denied because Explicit Deny always takes precedence over Allow.
+
+Q6. Can an IAM User belong to multiple groups?
+
+Answer:
+
+Yes. A user can be a member of multiple IAM groups and inherits the combined permissions from those groups, except where an explicit deny exists.
+
+Q7. Can IAM Groups contain other Groups?
+
+Answer:
+
+No. IAM groups cannot be nested inside other groups.
+
+Q8. Is IAM a Regional service?
+
+Answer:
+
+No. IAM is a global service, meaning users, groups, roles, and policies are available across all AWS Regions within the same AWS account.
+
+Q9. What is an IAM Policy?
+
+Answer:
+
+An IAM policy is a JSON document that defines permissions by specifying:
+
+Effect (Allow or Deny)
+Action
+Resource
+Optional conditions
+Q10. What is the Root User?
+
+Answer:
+
+The root user is the original account identity with unrestricted access to all AWS services and resources. It should be protected with MFA and used only for tasks that require root privileges.
+
+Scenario-Based Interview Questions
+Scenario 1
+
+Question: An EC2 instance needs to upload files to an S3 bucket. What is the recommended approach?
+
+Answer:
+
+Create an IAM role with s3:PutObject permission.
+Attach the role to the EC2 instance.
+Avoid storing access keys on the instance.
+Scenario 2
+
+Question: A developer accidentally deleted an IAM policy. How would you investigate?
+
+Answer:
+
+Check AWS CloudTrail logs to identify who deleted the policy and when.
+Review IAM change history.
+Restore or recreate the policy if needed.
+Scenario 3
+
+Question: A Jenkins pipeline needs to deploy infrastructure to AWS. Should you use an IAM user or IAM role?
+
+Answer:
+
+If Jenkins runs on an EC2 instance, attach an IAM role to that instance.
+If Jenkins runs outside AWS, use an IAM user with the minimum required permissions and store the credentials securely (for example, in Jenkins Credentials or a secrets manager).
+Common Mistakes Interviewers Watch For
+❌ Using the root account for daily work.
+❌ Embedding access keys in application code.
+❌ Granting AdministratorAccess to every user.
+❌ Ignoring MFA for privileged accounts.
+❌ Giving overly broad permissions such as Action: "*".
+❌ Not understanding the difference between Users, Groups, and Roles.
