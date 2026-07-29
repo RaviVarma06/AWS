@@ -1,0 +1,639 @@
+PART 5: S3 (Simple Storage Service)
+
+Interview Importance: ⭐⭐⭐⭐⭐ (Very High)
+
+Amazon S3 (Simple Storage Service) is AWS's highly scalable object storage service. It is designed to store and retrieve virtually unlimited amounts of data with high durability and availability.
+
+For DevOps engineers, S3 is commonly used for:
+
+Application backups
+Jenkins build artifacts
+Static website hosting
+Log storage
+Terraform remote state
+CloudFront origin
+Data lakes
+What is S3?
+
+S3 is an object storage service.
+
+Unlike EBS, S3 does not store data as disks or filesystems.
+
+Instead, it stores:
+
+Object = File + Metadata + Unique Key
+
+Example:
+
+Bucket
+
+photos/
+
+      image1.jpg
+
+      image2.jpg
+
+      image3.jpg
+S3 Architecture
+                 AWS Region
+
+                     |
+
+                S3 Bucket
+
+        -------------------------
+
+        |         |            |
+
+      photo.jpg  report.pdf  backup.zip
+
+      Object      Object       Object
+Key Terminology
+Bucket
+
+A Bucket is the top-level container for storing objects.
+
+Example:
+
+company-backups
+
+company-images
+
+company-logs
+
+Bucket names must be:
+
+Globally unique
+DNS compliant
+
+Example:
+
+mycompany-backup-2026
+Object
+
+An object consists of:
+
+Object
+
+↓
+
+File
+
++
+
+Metadata
+
++
+
+Unique Key
+
+Example:
+
+photos/image1.jpg
+Key
+
+A Key is the unique identifier for an object.
+
+Example:
+
+Bucket
+
+↓
+
+photos/
+
+↓
+
+holiday/
+
+↓
+
+beach.jpg
+
+The full key is:
+
+photos/holiday/beach.jpg
+S3 Characteristics
+
+S3 is:
+
+Highly durable (11 nines or 99.999999999%)
+Highly available
+Infinitely scalable
+Managed by AWS
+Accessible via HTTP/HTTPS
+Object Size Limits
+
+Minimum:
+
+0 Bytes
+
+Maximum:
+
+5 TB
+
+For large files, use Multipart Upload.
+
+Storage Classes
+
+Choosing the right storage class is a common interview topic.
+
+1. S3 Standard
+
+Best for:
+
+Frequently accessed files
+Websites
+Mobile apps
+
+Features:
+
+Low latency
+High availability
+2. S3 Intelligent-Tiering
+
+AWS automatically moves objects between access tiers based on usage.
+
+Good when access patterns are unpredictable.
+
+3. S3 Standard-IA (Infrequent Access)
+
+Suitable for:
+
+Backups
+Disaster recovery
+
+Lower storage cost, but retrieval incurs a fee.
+
+4. S3 One Zone-IA
+
+Stores data in a single Availability Zone.
+
+Suitable for:
+
+Re-creatable data
+Secondary backups
+
+Lower cost but less resilient than multi-AZ storage.
+
+5. S3 Glacier Instant Retrieval
+
+Used for archives that still require quick access.
+
+6. S3 Glacier Flexible Retrieval
+
+Used for long-term backups where retrieval can take minutes or hours.
+
+7. S3 Glacier Deep Archive
+
+Cheapest storage option.
+
+Suitable for:
+
+Compliance
+Long-term archival (years)
+
+Retrieval may take many hours.
+
+Storage Class Comparison
+Storage Class	Use Case
+Standard	Frequently accessed data
+Intelligent-Tiering	Unknown access patterns
+Standard-IA	Infrequently accessed data
+One Zone-IA	Non-critical backups
+Glacier Instant Retrieval	Fast archive access
+Glacier Flexible Retrieval	Long-term archives
+Glacier Deep Archive	Compliance and very long-term retention
+Versioning
+
+Versioning protects against accidental deletion and overwrites.
+
+Without Versioning:
+
+report.pdf
+
+↓
+
+Upload New Version
+
+↓
+
+Old Version Lost
+
+With Versioning:
+
+report.pdf
+
+↓
+
+Version 1
+
+↓
+
+Version 2
+
+↓
+
+Version 3
+
+Benefits:
+
+Recover deleted files
+Restore previous versions
+Protect against accidental overwrites
+Lifecycle Rules
+
+Lifecycle Rules automatically move or delete objects.
+
+Example:
+
+Day 0
+
+↓
+
+S3 Standard
+
+↓
+
+After 30 Days
+
+↓
+
+Standard-IA
+
+↓
+
+After 180 Days
+
+↓
+
+Glacier
+
+↓
+
+After 365 Days
+
+↓
+
+Delete
+
+Benefits:
+
+Cost optimisation
+Automated data management
+Bucket Policies
+
+Bucket Policies are resource-based JSON policies.
+
+Example:
+
+{
+   "Effect":"Allow",
+   "Principal":"*",
+   "Action":"s3:GetObject",
+   "Resource":"arn:aws:s3:::website/*"
+}
+
+Used to:
+
+Grant public read access
+Allow cross-account access
+Restrict access by IP or conditions
+IAM Policy vs Bucket Policy
+IAM Policy	Bucket Policy
+Attached to users, groups, or roles	Attached directly to a bucket
+Controls what an identity can do	Controls who can access the bucket
+Identity-based	Resource-based
+S3 Encryption
+
+Interviewers often ask about securing data.
+
+Server-Side Encryption (SSE)
+
+AWS encrypts objects after upload.
+
+Options:
+
+SSE-S3 (AWS-managed keys)
+SSE-KMS (AWS KMS-managed keys)
+SSE-C (Customer-provided keys)
+Client-Side Encryption
+
+Data is encrypted before being uploaded to S3.
+
+The customer manages the encryption keys.
+
+Multipart Upload
+
+Used for large files.
+
+Instead of uploading:
+
+5 GB File
+
+Upload:
+
+Part 1
+
+Part 2
+
+Part 3
+
+↓
+
+Combine
+
+Advantages:
+
+Faster uploads
+Retry only failed parts
+Better reliability
+Static Website Hosting
+
+S3 can host static websites.
+
+Example:
+
+S3 Bucket
+
+↓
+
+HTML
+
+CSS
+
+JavaScript
+
+↓
+
+Public Website
+
+Limitations:
+
+No server-side code (PHP, Java, .NET)
+Only static content
+Event Notifications
+
+S3 can trigger actions when events occur.
+
+Example:
+
+User Uploads Image
+
+↓
+
+S3 Bucket
+
+↓
+
+Event Notification
+
+↓
+
+Lambda Function
+
+↓
+
+Resize Image
+
+Targets include:
+
+Lambda
+SNS
+SQS
+Cross-Region Replication (CRR)
+
+Automatically copies objects to another AWS Region.
+
+Example:
+
+Mumbai Bucket
+
+↓
+
+Replication
+
+↓
+
+London Bucket
+
+Benefits:
+
+Disaster recovery
+Compliance
+Lower latency for global users
+
+Versioning must be enabled on both buckets.
+
+Same-Region Replication (SRR)
+
+Copies objects within the same Region.
+
+Useful for:
+
+Log aggregation
+Compliance
+Separate workloads
+Pre-Signed URLs
+
+A Pre-Signed URL provides temporary access to a private object.
+
+Example:
+
+Private File
+
+↓
+
+Generate URL
+
+↓
+
+Valid for 1 Hour
+
+↓
+
+Share with User
+
+Common use cases:
+
+Secure downloads
+Temporary uploads
+Sharing reports
+S3 Performance
+
+AWS automatically scales S3 performance.
+
+For large uploads:
+
+Use Multipart Upload.
+Upload objects in parallel.
+Common DevOps Use Cases
+Jenkins Build Artifacts
+Jenkins
+
+↓
+
+Build
+
+↓
+
+Upload Artifact
+
+↓
+
+S3
+Terraform Remote State
+Terraform Apply
+
+↓
+
+terraform.tfstate
+
+↓
+
+S3 Bucket
+
+Often paired with DynamoDB for state locking.
+
+Log Storage
+Application
+
+↓
+
+CloudWatch
+
+↓
+
+S3
+
+↓
+
+Athena
+Backup Storage
+EC2
+
+↓
+
+Backup
+
+↓
+
+S3
+
+↓
+
+Glacier
+Interview Questions
+Q1. What is S3?
+
+Answer:
+
+Amazon S3 is a highly durable, scalable object storage service used to store and retrieve data from anywhere over the internet.
+
+Q2. Difference between S3 and EBS?
+S3	EBS
+Object storage	Block storage
+Accessed over HTTP/HTTPS	Attached to EC2 instances
+Virtually unlimited scalability	Limited to attached volumes
+Suitable for files and backups	Suitable for operating systems and databases
+Q3. Can an EC2 instance boot from S3?
+
+Answer:
+
+No. EC2 instances boot from block storage such as EBS or instance store, not from S3.
+
+Q4. What is Versioning?
+
+Answer:
+
+Versioning keeps multiple versions of an object, helping recover from accidental deletion or overwrites.
+
+Q5. What is a Lifecycle Rule?
+
+Answer:
+
+A Lifecycle Rule automatically transitions objects between storage classes or expires them after a specified period to reduce storage costs.
+
+Q6. Difference between Glacier and Standard?
+Standard	Glacier
+Frequent access	Archival storage
+Immediate retrieval	Retrieval may take minutes to hours
+Higher storage cost	Lower storage cost
+Q7. Why use Pre-Signed URLs?
+
+Answer:
+
+To provide temporary, secure access to private S3 objects without making the bucket public.
+
+Q8. What is Cross-Region Replication?
+
+Answer:
+
+Cross-Region Replication automatically copies objects from one bucket to another bucket in a different AWS Region. Versioning must be enabled.
+
+Q9. How do you make an S3 bucket private?
+
+Answer:
+
+Enable Block Public Access.
+Remove public bucket policies and ACLs.
+Grant access only through IAM policies or bucket policies.
+Q10. Why is S3 considered highly durable?
+
+Answer:
+
+AWS stores multiple copies of objects across multiple devices within an AWS Region, providing a durability of 99.999999999% (11 nines).
+
+Scenario-Based Questions
+Scenario 1
+
+Question: A user accidentally deleted a file from an S3 bucket. How can you recover it?
+
+Answer:
+
+If Versioning was enabled, restore the previous object version. Without Versioning, recovery depends on backups or replication.
+
+Scenario 2
+
+Question: Your company stores 100 TB of backups that are rarely accessed. Which storage class would you recommend?
+
+Answer:
+
+S3 Glacier Deep Archive is generally the most cost-effective choice for long-term archival where retrieval time is not critical.
+
+Scenario 3
+
+Question: Your application uploads videos larger than 20 GB. How would you optimise uploads?
+
+Answer:
+
+Use Multipart Upload so the file is uploaded in parallel parts. Failed parts can be retried without restarting the entire upload.
+
+Scenario 4
+
+Question: A private S3 bucket must allow customers to download reports for only 30 minutes.
+
+Answer:
+
+Generate a Pre-Signed URL with a 30-minute expiration instead of making the bucket public.
+
+Common Interview Mistakes
+❌ Saying S3 is a file system (it is object storage).
+❌ Confusing EBS with S3.
+❌ Forgetting that Versioning cannot protect objects if it was never enabled.
+❌ Assuming Glacier retrieval is always instant.
+❌ Making buckets public when Pre-Signed URLs or IAM policies would be more secure.
+Quick Revision Sheet
+Feature	Purpose
+Bucket	Container for objects
+Object	File + metadata + key
+Key	Unique object identifier
+Versioning	Protects against deletion and overwrites
+Lifecycle Rules	Automates storage transitions and deletion
+Bucket Policy	Resource-based access control
+SSE	Server-side encryption
+Multipart Upload	Efficient upload of large files
+CRR	Cross-Region Replication
+SRR	Same-Region Replication
+Pre-Signed URL	Temporary access to private objects
+Static Website Hosting	Hosts HTML, CSS, and JavaScript content
