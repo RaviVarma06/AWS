@@ -1,0 +1,642 @@
+PART 3: EC2 (Elastic Compute Cloud)
+
+EC2 (Elastic Compute Cloud) is one of the most frequently asked AWS services in DevOps interviews. Almost every AWS interview includes EC2 because it is the foundation for running applications in the cloud.
+
+What is EC2?
+
+Amazon EC2 is a service that provides resizable virtual servers (instances) in the cloud.
+
+Instead of buying a physical server, AWS allows you to create virtual machines on demand.
+
+Example:
+
+Traditional Infrastructure
+
+Physical Server
+      |
+Install OS
+      |
+Install Applications
+
+Cloud:
+
+AWS
+
+↓
+
+Launch EC2 Instance
+
+↓
+
+Install Application
+
+↓
+
+Ready
+Why EC2?
+
+Without EC2:
+
+Buy hardware
+Wait for delivery
+Install operating system
+Configure networking
+Maintain hardware
+
+With EC2:
+
+Click Launch
+
+↓
+
+Server Ready
+
+↓
+
+Few Minutes
+
+Benefits:
+
+Elastic
+Highly available
+Pay only for what you use
+Easily scalable
+EC2 Architecture
+                 AWS Region
+                     |
+         -------------------------
+         |                       |
+     Availability Zone A     Availability Zone B
+         |                       |
+     EC2 Instance A          EC2 Instance B
+         |                       |
+         --------Load Balancer----
+EC2 Instance Components
+
+An EC2 instance consists of:
+
+EC2 Instance
+
+├── Operating System
+├── CPU
+├── Memory
+├── Network Interface
+├── Security Group
+├── EBS Volume
+└── IAM Role
+EC2 Lifecycle
+
+Interviewers often ask this.
+
+Launch
+
+↓
+
+Pending
+
+↓
+
+Running
+
+↓
+
+Stopping
+
+↓
+
+Stopped
+
+↓
+
+Starting
+
+↓
+
+Running
+
+↓
+
+Terminated
+Pending
+
+AWS is creating the instance.
+
+Running
+
+The server is available.
+
+Example:
+
+ssh ec2-user@54.xxx.xxx.xxx
+Stopped
+
+The VM is powered off.
+
+You pay for:
+
+Storage
+
+You do NOT pay for:
+
+Compute
+Terminated
+
+The instance is permanently deleted.
+
+Cannot be restarted.
+
+AMI (Amazon Machine Image)
+
+An AMI is a template used to launch EC2 instances.
+
+Contains:
+
+Operating System
+Installed software
+Configuration
+Application
+
+Example:
+
+Ubuntu Server
+
++
+
+Java
+
++
+
+Tomcat
+
++
+
+Application
+
+↓
+
+AMI
+
+↓
+
+Launch 100 Servers
+Types of AMIs
+AWS AMIs
+
+Maintained by AWS.
+
+Example:
+
+Amazon Linux
+Ubuntu
+Windows
+Marketplace AMIs
+
+Provided by third parties.
+
+Examples:
+
+MongoDB
+Jenkins
+Red Hat
+Custom AMI
+
+Created by your organisation.
+
+Example:
+
+Configure Server
+
+↓
+
+Install Application
+
+↓
+
+Create AMI
+
+↓
+
+Reuse Everywhere
+Instance Types
+
+AWS offers different instance families.
+
+General Purpose (T, M)
+
+Example:
+
+t2.micro
+t3.micro
+m5.large
+
+Use cases:
+
+Small applications
+Development
+Web servers
+Compute Optimised (C)
+
+Example:
+
+c5.large
+
+Used for:
+
+Gaming
+Video encoding
+Scientific computing
+Memory Optimised (R, X)
+
+Used for:
+
+SAP
+Databases
+Big Data
+Storage Optimised (I, D)
+
+Used for:
+
+NoSQL databases
+Analytics
+GPU Instances
+
+Used for:
+
+Machine Learning
+AI
+Graphics rendering
+Instance Naming
+
+Example:
+
+t3.medium
+
+Meaning:
+
+t = Family
+
+3 = Generation
+
+medium = Size
+Key Pair
+
+A Key Pair allows secure login to Linux instances.
+
+Consists of:
+
+Private Key (.pem)
+
+↓
+
+Your Laptop
+
+Public Key
+
+↓
+
+EC2 Instance
+
+SSH:
+
+ssh -i mykey.pem ec2-user@54.x.x.x
+Security Groups
+
+Security Groups act as virtual firewalls.
+
+They control:
+
+Incoming traffic
+Outgoing traffic
+
+Example:
+
+Internet
+
+↓
+
+Security Group
+
+↓
+
+EC2
+Inbound Rules
+
+Example:
+
+Port	Protocol	Purpose
+22	SSH	Linux login
+80	HTTP	Website
+443	HTTPS	Secure website
+Outbound Rules
+
+Usually:
+
+Allow All
+Security Group Characteristics
+Stateful
+Allow rules only
+Attached to EC2
+Multiple security groups per instance
+Network ACL vs Security Group
+Security Group	Network ACL
+Stateful	Stateless
+Instance level	Subnet level
+Allow rules only	Allow and Deny
+Easier management	More granular
+Elastic IP
+
+Normally:
+
+Stop Instance
+
+↓
+
+Public IP Changes
+
+Elastic IP:
+
+Stop
+
+↓
+
+Start
+
+↓
+
+Same Public IP
+
+Useful when clients or DNS records rely on a fixed IP.
+
+User Data
+
+Runs automatically during the first boot.
+
+Example:
+
+#!/bin/bash
+
+yum update -y
+
+yum install httpd -y
+
+systemctl enable httpd
+
+systemctl start httpd
+
+Automatically installs Apache when the instance launches.
+
+Instance Store vs EBS
+Instance Store
+Temporary storage
+Fast
+Lost if instance stops or terminates
+EBS
+Persistent storage
+Can create snapshots
+Survives instance stop/start
+EBS (Elastic Block Store)
+
+Think of EBS as a virtual hard disk.
+
+EC2
+
+↓
+
+EBS Volume
+
+Advantages:
+
+Persistent
+Snapshots
+Encryption
+Resize volumes
+EBS Volume Types
+GP3
+
+General-purpose SSD.
+
+Best for:
+
+Most applications
+IO2
+
+High-performance SSD.
+
+Used for:
+
+Databases
+Mission-critical workloads
+ST1
+
+Throughput Optimised HDD.
+
+Used for:
+
+Big data
+Log processing
+EBS Snapshots
+
+A snapshot is a backup stored in S3.
+
+EBS Volume
+
+↓
+
+Snapshot
+
+↓
+
+Restore New Volume
+EC2 Pricing Models
+On-Demand
+
+Pay per second (or hour, depending on OS).
+
+Best for:
+
+Development
+Short-term workloads
+Reserved Instances
+
+Commit for 1 or 3 years.
+
+Benefits:
+
+Lower cost
+Predictable workloads
+Spot Instances
+
+Use spare AWS capacity.
+
+Advantages:
+
+Lowest cost
+
+Disadvantages:
+
+AWS may interrupt the instance.
+
+Best for:
+
+Batch jobs
+CI/CD builds
+Testing
+Dedicated Hosts
+
+Physical servers dedicated to one customer.
+
+Used for:
+
+Licensing requirements
+Compliance
+EC2 Auto Recovery
+
+CloudWatch detects hardware failure.
+
+Automatically:
+
+Failure
+
+↓
+
+Recover
+
+↓
+
+Same Instance
+Monitoring
+
+Basic Monitoring:
+
+5-minute intervals
+
+Detailed Monitoring:
+
+1-minute intervals
+
+Metrics include:
+
+CPU Utilisation
+Network In/Out
+Disk I/O
+Status Checks
+Interview Questions
+Q1. What is EC2?
+
+Answer:
+
+EC2 is a virtual machine service that allows customers to launch, manage, and scale compute instances in the AWS cloud.
+
+Q2. Difference between Stop and Terminate?
+Stop	Terminate
+Instance can restart	Permanent deletion
+EBS persists	Root volume is deleted by default
+Public IP may change	Instance is removed
+Q3. What is an AMI?
+
+Answer:
+
+An AMI is a template containing an operating system, application software, and configuration used to launch one or more EC2 instances.
+
+Q4. What is the purpose of a Security Group?
+
+Answer:
+
+A Security Group acts as a stateful virtual firewall that controls inbound and outbound traffic to an EC2 instance.
+
+Q5. Can one Security Group be attached to multiple EC2 instances?
+
+Answer:
+
+Yes. A single Security Group can be associated with multiple EC2 instances.
+
+Q6. Can one EC2 instance have multiple Security Groups?
+
+Answer:
+
+Yes. An EC2 instance can have multiple Security Groups attached, and AWS evaluates the combined allow rules.
+
+Q7. Why use an Elastic IP?
+
+Answer:
+
+An Elastic IP provides a static public IPv4 address that remains associated with your AWS account and can be remapped to another instance if required.
+
+Q8. What happens if an EC2 instance fails?
+
+Answer:
+
+Depending on the architecture:
+
+Auto Scaling can launch a replacement instance.
+EC2 Auto Recovery may recover the instance after certain hardware failures.
+Applications behind a Load Balancer continue serving traffic if healthy instances remain.
+Q9. What is User Data?
+
+Answer:
+
+User Data is a script or cloud-init configuration that runs automatically during the initial boot of an EC2 instance, commonly used to install software and configure services.
+
+Q10. Why is GP3 generally recommended over older GP2 volumes?
+
+Answer:
+
+GP3 volumes let you configure storage size, IOPS, and throughput independently, providing better performance flexibility and often lower cost than GP2.
+
+Scenario-Based Questions
+Scenario 1
+
+Question: Users cannot access your website hosted on EC2. What do you check first?
+
+Answer:
+
+Is the EC2 instance in the Running state?
+Is the web server (Nginx/Apache) running?
+Does the Security Group allow ports 80/443?
+Does the subnet route to an Internet Gateway (for a public server)?
+Is the Network ACL allowing the traffic?
+Are the application logs showing any errors?
+Scenario 2
+
+Question: An EC2 instance needs to read files from an S3 bucket. What is the most secure solution?
+
+Answer:
+
+Create an IAM role with the required S3 permissions, attach it to the EC2 instance, and avoid storing long-term access keys on the server.
+
+Scenario 3
+
+Question: Your application suddenly receives ten times the normal traffic. How would you handle it?
+
+Answer:
+
+Deploy the application behind an Application Load Balancer, place the EC2 instances in an Auto Scaling Group, and use CloudWatch metrics (such as CPU utilisation) to scale out automatically.
+
+Scenario 4
+
+Question: You accidentally terminated an EC2 instance. Can you recover it?
+
+Answer:
+
+A terminated instance cannot be restarted. Recovery depends on your backups:
+
+Launch a new instance from a custom AMI, or
+Restore attached data from EBS snapshots if available.
+Common Interview Mistakes
+❌ Confusing Stop with Terminate.
+❌ Saying Security Groups support Deny rules (they do not).
+❌ Storing AWS access keys directly on EC2 instead of using IAM roles.
+❌ Thinking an AMI is a running server rather than an image/template.
+❌ Confusing EBS (persistent block storage) with S3 (object storage).
+
+Key Takeaways
+Concept	Remember
+EC2	Virtual server in AWS
+AMI	Template used to launch EC2 instances
+Security Group	Stateful firewall with allow rules only
+EBS	Persistent block storage
+Elastic IP	Static public IPv4 address
+User Data	Boot-time automation script
+IAM Role	Secure way to grant AWS permissions to EC2
+Spot Instances	Lowest cost but interruptible
+Auto Scaling	Automatically adjusts the number of instances
