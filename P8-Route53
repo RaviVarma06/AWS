@@ -1,0 +1,719 @@
+PART 8: Amazon Route 53 & DNS
+
+Interview Importance: ⭐⭐⭐⭐⭐ (Highest Priority)
+
+DNS is one of the most frequently asked networking topics in AWS DevOps interviews. Many interviewers start with:
+
+"What happens when you type google.com into a browser?"
+"How does Route 53 work?"
+"Difference between CNAME and Alias?"
+"How does failover routing work?"
+
+If you understand DNS well, many AWS networking concepts become much easier.
+
+What is DNS?
+
+DNS (Domain Name System) translates human-readable domain names into IP addresses.
+
+Example:
+
+Instead of remembering:
+
+142.250.183.110
+
+We type:
+
+www.google.com
+
+DNS converts:
+
+www.google.com
+
+↓
+
+142.250.xxx.xxx
+
+Think of DNS as the phonebook of the Internet.
+
+What is Amazon Route 53?
+
+Amazon Route 53 is AWS's:
+
+DNS Service
+Domain Registration Service
+Health Checking Service
+Traffic Routing Service
+
+It routes users to AWS resources such as:
+
+EC2
+ALB
+CloudFront
+S3
+API Gateway
+Elastic Beanstalk
+Why is it called Route 53?
+
+Because DNS primarily uses Port 53.
+
+Protocols:
+
+UDP 53
+
+TCP 53
+DNS Resolution Process
+
+This is a favourite interview question.
+
+Suppose a user opens:
+
+www.company.com
+
+The flow is:
+
+User
+
+↓
+
+Browser Cache
+
+↓
+
+Operating System Cache
+
+↓
+
+ISP DNS Resolver
+
+↓
+
+Root DNS Server
+
+↓
+
+TLD Server (.com)
+
+↓
+
+Authoritative DNS (Route 53)
+
+↓
+
+IP Address
+
+↓
+
+Browser connects to Server
+Route 53 Architecture
+Users
+
+↓
+
+Route 53
+
+↓
+
+Application Load Balancer
+
+↓
+
+EC2 Instances
+Hosted Zones
+
+A Hosted Zone stores DNS records.
+
+Example:
+
+company.com
+
+Hosted Zone contains:
+
+www.company.com
+
+api.company.com
+
+mail.company.com
+Types of Hosted Zones
+Public Hosted Zone
+
+Accessible from the internet.
+
+Example:
+
+example.com
+Private Hosted Zone
+
+Accessible only inside a VPC.
+
+Example:
+
+database.internal
+
+Useful for:
+
+Internal APIs
+Private databases
+Microservices
+DNS Records
+
+A Hosted Zone contains multiple record types.
+
+A Record
+
+Maps a domain to an IPv4 address.
+
+Example:
+
+www.company.com
+
+↓
+
+192.168.1.10
+AAAA Record
+
+Maps to an IPv6 address.
+
+CNAME Record
+
+Maps one domain name to another domain name.
+
+Example:
+
+api.company.com
+
+↓
+
+loadbalancer.amazonaws.com
+
+Cannot be used for the zone apex (root domain), such as company.com.
+
+Alias Record (AWS Feature)
+
+Alias records point AWS resources to AWS resources.
+
+Example:
+
+company.com
+
+↓
+
+Application Load Balancer
+
+Supported resources include:
+
+ALB
+NLB
+CloudFront
+S3 Static Website
+API Gateway
+
+Advantages:
+
+No additional Route 53 query charge for Alias lookups to AWS resources.
+Supports root domain.
+MX Record
+
+Mail server.
+
+Example:
+
+company.com
+
+↓
+
+Google Workspace
+TXT Record
+
+Stores text.
+
+Common uses:
+
+SPF
+DKIM
+Domain verification
+NS Record
+
+Name Servers.
+
+Tells the internet:
+
+Who manages this domain?
+Alias vs CNAME
+Alias	CNAME
+AWS-specific	Standard DNS
+Can be used at root domain	Cannot be used at root domain
+Supports AWS resources	Points to any hostname
+No Route 53 query charge for supported AWS targets	Standard DNS behaviour
+
+Interview Question:
+
+Which should you use for an Application Load Balancer?
+
+Answer:
+
+Alias Record
+
+TTL (Time To Live)
+
+TTL determines how long DNS responses remain cached.
+
+Example:
+
+TTL = 300 seconds
+
+DNS servers reuse the cached answer for 5 minutes before checking again.
+
+Lower TTL:
+
+Faster updates
+More DNS queries
+
+Higher TTL:
+
+Better performance
+More caching
+Route 53 Routing Policies
+
+One of the most important interview topics.
+
+1. Simple Routing
+
+One resource.
+
+Users
+
+↓
+
+EC2
+2. Weighted Routing
+
+Traffic split by percentages.
+
+Example:
+
+Server A
+
+80%
+Server B
+
+20%
+
+Useful for:
+
+Gradual deployments
+A/B testing
+3. Latency-Based Routing
+
+Users are routed to the AWS Region with the lowest latency.
+
+Example:
+
+India User
+
+↓
+
+Mumbai Region
+Germany User
+
+↓
+
+Frankfurt Region
+4. Failover Routing
+
+Primary server:
+
+Primary Healthy
+
+↓
+
+Users
+
+Failure:
+
+Primary Failed
+
+↓
+
+Secondary
+
+Works with Route 53 health checks.
+
+5. Geolocation Routing
+
+Routes users based on their geographic location.
+
+Example:
+
+India
+
+↓
+
+Mumbai Website
+USA
+
+↓
+
+Virginia Website
+6. Geoproximity Routing
+
+Routes users based on geographic distance and can shift traffic using bias values.
+
+Often used with AWS Global Accelerator or Route 53 Traffic Flow.
+
+7. Multi-Value Answer Routing
+
+Returns multiple healthy IP addresses.
+
+Example:
+
+Server-1
+
+Server-2
+
+Server-3
+
+Unhealthy servers are omitted from responses.
+
+Health Checks
+
+Route 53 can monitor endpoints.
+
+Example:
+
+Every 30 Seconds
+
+↓
+
+HTTP GET
+
+↓
+
+Status Code
+
+↓
+
+Healthy?
+
+If unhealthy:
+
+Stop Returning IP
+Domain Registration
+
+Route 53 can:
+
+Register domains
+Renew domains
+Transfer domains
+
+Example:
+
+company.com
+Private Hosted Zones
+
+Useful inside a VPC.
+
+EC2
+
+↓
+
+database.internal
+
+↓
+
+RDS
+
+No internet access required.
+
+DNS Failover
+Users
+
+↓
+
+Route 53
+
+↓
+
+Primary ALB
+
+↓
+
+Healthy?
+
+If not:
+
+Secondary ALB
+Route 53 + ALB
+Users
+
+↓
+
+company.com
+
+↓
+
+Route 53
+
+↓
+
+Application Load Balancer
+
+↓
+
+Auto Scaling
+
+↓
+
+EC2
+
+This is the standard production architecture.
+
+Route 53 + CloudFront
+Users
+
+↓
+
+Route 53
+
+↓
+
+CloudFront
+
+↓
+
+S3
+
+↓
+
+Website
+Route 53 + Multi-Region
+Route 53
+
+↓
+
+Latency Policy
+
+↓
+
+Mumbai
+
+↓
+
+OR
+
+↓
+
+Frankfurt
+Interview Questions
+Q1. What is Route 53?
+
+Answer:
+
+Amazon Route 53 is a highly available and scalable DNS service that provides domain registration, DNS routing, and health checking.
+
+Q2. Why is it called Route 53?
+
+Answer:
+
+Because DNS uses port 53 for both UDP and TCP communication.
+
+Q3. Difference between A Record and CNAME?
+A Record	CNAME
+Maps to an IPv4 address	Maps to another hostname
+Can be used for root domain	Cannot be used for root domain
+Q4. Difference between Alias and CNAME?
+
+Answer:
+
+Alias is an AWS-specific Route 53 record that can point to AWS resources such as ALBs and CloudFront distributions and supports the root domain. CNAME is a standard DNS record that maps one hostname to another but cannot be used at the root domain.
+
+Q5. What is TTL?
+
+Answer:
+
+TTL (Time To Live) is the amount of time DNS resolvers cache a DNS record before requesting it again from the authoritative DNS server.
+
+Q6. What is a Hosted Zone?
+
+Answer:
+
+A Hosted Zone is a container for DNS records for a domain. It can be public (internet-facing) or private (associated with one or more VPCs).
+
+Q7. What is Failover Routing?
+
+Answer:
+
+Failover Routing directs traffic to a primary endpoint while it's healthy. If Route 53 health checks detect a failure, traffic is automatically directed to the secondary endpoint.
+
+Q8. What is Latency-Based Routing?
+
+Answer:
+
+Latency-Based Routing sends users to the AWS Region that provides the lowest network latency, improving response times.
+
+Q9. What is Geolocation Routing?
+
+Answer:
+
+Geolocation Routing sends users to different endpoints based on the geographic location from which their DNS query originates.
+
+Q10. Can Route 53 monitor server health?
+
+Answer:
+
+Yes. Route 53 health checks can monitor HTTP, HTTPS, or TCP endpoints and use the results in routing decisions such as failover.
+
+Real Interview Scenarios
+Scenario 1
+Question
+
+Your website must remain available if the primary AWS Region fails.
+
+Solution
+Users
+
+↓
+
+Route 53
+
+↓
+
+Primary ALB (Mumbai)
+
+↓
+
+Health Check
+
+↓
+
+Fails
+
+↓
+
+Secondary ALB (Frankfurt)
+
+Use Failover Routing Policy with health checks.
+
+Scenario 2
+Question
+
+You want to send 10% of users to a new application version.
+
+Solution
+
+Use Weighted Routing.
+
+Example:
+
+Old Version
+
+90%
+New Version
+
+10%
+
+Gradually increase the percentage after validation.
+
+Scenario 3
+Question
+
+Your company has users in Europe and Asia. You want the fastest response time.
+
+Solution
+
+Use Latency-Based Routing.
+
+Europe Users
+
+↓
+
+Frankfurt
+Asia Users
+
+↓
+
+Mumbai
+Scenario 4
+Question
+
+You have an internal application that should only be accessible from your VPC.
+
+Solution
+
+Use:
+
+Private Hosted Zone
+Private subnets
+Internal ALB (if applicable)
+
+Example:
+
+EC2
+
+↓
+
+api.internal
+
+↓
+
+Private ALB
+Scenario 5
+Question
+
+You need to point your root domain (company.com) to an Application Load Balancer.
+
+Solution
+
+Use an Alias A Record, because CNAME records cannot be used at the zone apex.
+
+Common Interview Mistakes
+
+❌ Saying CNAME can be used for the root domain.
+
+❌ Confusing Alias Records with A Records.
+
+❌ Forgetting that Route 53 routing decisions are based on DNS resolution, not per HTTP request.
+
+❌ Assuming health checks automatically restart failed EC2 instances (they don't—they only influence DNS responses).
+
+❌ Mixing up Geolocation and Latency-Based Routing.
+
+Quick Revision Sheet
+Concept	Purpose
+Route 53	Managed DNS service
+Hosted Zone	Stores DNS records
+Public Hosted Zone	Internet-accessible DNS
+Private Hosted Zone	DNS for VPC resources
+A Record	Maps hostname to IPv4 address
+AAAA Record	Maps hostname to IPv6 address
+CNAME	Maps one hostname to another
+Alias	AWS-specific record for AWS resources
+TTL	DNS cache duration
+Weighted Routing	Splits traffic by percentage
+Latency Routing	Routes to the lowest-latency Region
+Failover Routing	Directs traffic to a backup endpoint
+Geolocation Routing	Routes based on user location
+Multi-Value Answer	Returns multiple healthy endpoints
+Health Checks	Monitor endpoint availability
+AWS DevOps Interview Tip
+
+A common production architecture combines several AWS services:
+
+Users
+   |
+Route 53 (Alias Record)
+   |
+Application Load Balancer
+   |
+Auto Scaling Group (EC2)
+   |
+Amazon RDS (Multi-AZ)
+   |
+Amazon S3 (Backups/Static Assets)
+
+Be prepared to explain:
+
+Why Route 53 uses an Alias record instead of a CNAME for the root domain.
+How the ALB distributes traffic.
+How Auto Scaling responds to increased load.
+How RDS Multi-AZ provides high availability.
+How S3 is used for backups or static content.
